@@ -67,16 +67,43 @@ class round1 extends Phaser.Scene {
         centerline.setStrokeStyle(1, 0x808080, 1);
         centerline.setOrigin(0.5);
 
+        this.add.text(120, 60, "Enemy")
+            .setColor('#FF8080')
+            .setFontSize(48)
+            .setOrigin(0.5)
+
+        this.add.text(1160, 660, "Player")
+            .setColor('#8080FF')
+            .setFontSize(48)
+            .setOrigin(0.5)
+
+        let enemyScore = 0;
+        let playerScore = 0;
+
+        const enemyScoreText = this.add.text(120, 120, `Score: ${enemyScore}`)
+            .setColor('#FF8080')
+            .setFontSize(32)
+            .setOrigin(0.5);
+
+        const playerScoreText = this.add.text(1160, 600, `Score: ${playerScore}`)
+            .setColor('#8080FF')
+            .setFontSize(32)
+            .setOrigin(0.5);
+
         const ballRadius = 10;
         const ball = this.add.circle(x, y, ballRadius, 0xFFFFFF);
         this.physics.add.existing(ball);
-        this.ballVelocity = {
-            x: -5,
-            y: 5
-        };
+
+        const resetBall = () => {
+            ball.setPosition(x, y);
+            this.ballVelocity = {
+                x: -5,
+                y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-5, -2) : Phaser.Math.FloatBetween(2, 5)
+            };
+        }
+        resetBall()
 
         this.updateBall = () => {
-            
             ball.x += this.ballVelocity.x;
             ball.y += this.ballVelocity.y;
 
@@ -99,11 +126,15 @@ class round1 extends Phaser.Scene {
         });
 
         this.physics.add.collider(left, ball, () => {
-            this.ballVelocity.x *= -1;
+            playerScore++;
+            playerScoreText.setText(`Score: ${playerScore}`);
+            resetBall();
         });
 
         this.physics.add.collider(right, ball, () => {
-            this.ballVelocity.x *= -1;
+            enemyScore++;
+            enemyScoreText.setText(`Score: ${enemyScore}`);
+            resetBall();
         });
 
         const barWidth = 20;
