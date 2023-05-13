@@ -113,8 +113,6 @@ class round1 extends Phaser.Scene {
             else {
                 this.ballVelocity.x -= 0.001;
             }
-
-            console.log("ballVelocity.x = %ld", this.ballVelocity.x);
         };
 
         this.physics.add.collider(up, ball, () => {
@@ -137,7 +135,7 @@ class round1 extends Phaser.Scene {
             resetBall();
         });
 
-        const barWidth = 20;
+        const barWidth = 10;
         const barHeight = 100;
         const npcbar = this.add.graphics();
         npcbar.fillStyle(0xFF8080);
@@ -159,10 +157,10 @@ class round1 extends Phaser.Scene {
 
         const playerbar = this.add.graphics();
         playerbar.fillStyle(0x8080FF);
-        playerbar.fillRect(1020, y - barHeight / 2, barWidth, barHeight);
+        playerbar.fillRect(1030, y - barHeight / 2, barWidth, barHeight);
         this.physics.add.existing(playerbar);
         playerbar.body.setSize(barWidth, barHeight);
-        playerbar.body.setOffset(1020, y - barHeight / 2);
+        playerbar.body.setOffset(1030, y - barHeight / 2);
         this.input.keyboard.enabled = true;
         const keys = this.input.keyboard.createCursorKeys();
         this.updatePlayerBar = () => {
@@ -176,10 +174,12 @@ class round1 extends Phaser.Scene {
 
         this.physics.add.collider(npcbar, ball, () => {
             this.ballVelocity.x *= -1;
+            ball.x += ballRadius;
         });
 
         this.physics.add.collider(playerbar, ball, () => {
             this.ballVelocity.x *= -1;
+            ball.x -= ballRadius;
         });
     }
 
