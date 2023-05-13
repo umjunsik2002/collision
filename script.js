@@ -67,15 +67,71 @@ class round1 extends Phaser.Scene {
         centerline.setStrokeStyle(1, 0x808080, 1);
         centerline.setOrigin(0.5);
 
+        const ballRadius = 10;
+        const ball = this.add.circle(x, y, ballRadius, 0xFFFFFF);
+        this.physics.add.existing(ball);
+        this.ballVelocity = {
+            x: -5,
+            y: 5
+        };
+
+        this.updateBall = () => {
+            
+            ball.x += this.ballVelocity.x;
+            ball.y += this.ballVelocity.y;
+
+            if (this.ballVelocity.x > 0) {
+                this.ballVelocity.x += 0.001;
+            }
+            else {
+                this.ballVelocity.x -= 0.001;
+            }
+
+            console.log("ballVelocity.x = %ld", this.ballVelocity.x);
+        };
+
+        this.physics.add.collider(up, ball, () => {
+            this.ballVelocity.y *= -1;
+        });
+
+        this.physics.add.collider(down, ball, () => {
+            this.ballVelocity.y *= -1;
+        });
+
+        this.physics.add.collider(left, ball, () => {
+            this.ballVelocity.x *= -1;
+        });
+
+        this.physics.add.collider(right, ball, () => {
+            this.ballVelocity.x *= -1;
+        });
+
         const barWidth = 20;
         const barHeight = 100;
         const npcbar = this.add.graphics();
         npcbar.fillStyle(0xFF8080);
         npcbar.fillRect(240, y - barHeight / 2, barWidth, barHeight);
+        this.physics.add.existing(npcbar);
+        npcbar.body.setSize(barWidth, barHeight);
+        npcbar.body.setOffset(240, y - barHeight / 2);
+        this.updateNpcBar = () => {
+            const dist = 5;
+            if (ball.x <= 640) {
+                if (npcbar.y < ball.y - dist - 360) {
+                    npcbar.y = Phaser.Math.Clamp(npcbar.y + dist, -250, 250);
+                }
+                else if (npcbar.y > ball.y + dist - 360) {
+                    npcbar.y = Phaser.Math.Clamp(npcbar.y - dist, -250, 250);
+                }
+            }
+        };
 
         const playerbar = this.add.graphics();
         playerbar.fillStyle(0x8080FF);
         playerbar.fillRect(1020, y - barHeight / 2, barWidth, barHeight);
+        this.physics.add.existing(playerbar);
+        playerbar.body.setSize(barWidth, barHeight);
+        playerbar.body.setOffset(1020, y - barHeight / 2);
         this.input.keyboard.enabled = true;
         const keys = this.input.keyboard.createCursorKeys();
         this.updatePlayerBar = () => {
@@ -87,39 +143,19 @@ class round1 extends Phaser.Scene {
             }
         };
 
-        var initialize = false;
+        this.physics.add.collider(npcbar, ball, () => {
+            this.ballVelocity.x *= -1;
+        });
 
-        const ballRadius = 10;
-        const ball = this.add.circle(x, y, ballRadius, 0xFFFFFF);
-        this.physics.add.existing(ball);
-        this.ballVelocity = {
-            x: 5,
-            y: 5
-        };
-
-        this.updateBall = () => {
-            ball.x += this.ballVelocity.x;
-            ball.y += this.ballVelocity.y;
-
-            if (Phaser.Geom.Intersects.LineToCircle(up, ball)) {
-                this.ballVelocity.y *= -1;
-            }
-            if (this.physics.add.collider(down, ball)) {
-                console.log("collide");
-                this.ballVelocity.y *= -1;
-            }
-            if (Phaser.Geom.Intersects.LineToCircle(left, ball)) {
-                this.ballVelocity.x *= -1;
-            }
-            if (Phaser.Geom.Intersects.LineToCircle(right, ball)) {
-                this.ballVelocity.x *= -1;
-            }
-        };
+        this.physics.add.collider(playerbar, ball, () => {
+            this.ballVelocity.x *= -1;
+        });
     }
 
     update() {
-        this.updatePlayerBar();
         this.updateBall();
+        this.updateNpcBar();
+        this.updatePlayerBar();
     }
 }
 
