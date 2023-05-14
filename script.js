@@ -99,10 +99,10 @@ class round1 extends Phaser.Scene {
             y: 0
         }
         const resetBall = () => {
+            ball.setPosition(x, y);
             ball.setVisible(false);
             setTimeout(() => {
                 ball.setVisible(true);
-                ball.setPosition(x, y);
                 this.ballVelocity = {
                     x: -5,
                     y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-4, -2) : Phaser.Math.FloatBetween(2, 4)
@@ -132,15 +132,15 @@ class round1 extends Phaser.Scene {
         });
 
         this.physics.add.collider(left, ball, () => {
+            resetBall();
             playerScore++;
             playerScoreText.setText(`Score: ${playerScore}`);
-            resetBall();
         });
 
         this.physics.add.collider(right, ball, () => {
+            resetBall();
             enemyScore++;
             enemyScoreText.setText(`Score: ${enemyScore}`);
-            resetBall();
         });
 
         const barWidth = 20;
