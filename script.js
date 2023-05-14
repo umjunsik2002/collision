@@ -94,13 +94,22 @@ class round1 extends Phaser.Scene {
         const ball = this.add.circle(x, y, ballRadius, 0xFFFFFF);
         this.physics.add.existing(ball);
 
-        const resetBall = () => {
-            ball.setPosition(x, y);
-            this.ballVelocity = {
-                x: -5,
-                y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-5, -2) : Phaser.Math.FloatBetween(2, 5)
-            };
+        this.ballVelocity = {
+            x: 0,
+            y: 0
         }
+        const resetBall = () => {
+            ball.setVisible(false);
+            setTimeout(() => {
+                ball.setVisible(true);
+                ball.setPosition(x, y);
+                this.ballVelocity = {
+                    x: -5,
+                    y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-4, -2) : Phaser.Math.FloatBetween(2, 4)
+                    // y: 0
+                };
+            }, 1000);
+        };
         resetBall()
 
         this.updateBall = () => {
@@ -108,19 +117,19 @@ class round1 extends Phaser.Scene {
             ball.y += this.ballVelocity.y;
 
             if (this.ballVelocity.x > 0) {
-                this.ballVelocity.x += 0.001;
+                this.ballVelocity.x += 0.002;
             }
             else {
-                this.ballVelocity.x -= 0.001;
+                this.ballVelocity.x -= 0.002;
             }
         };
 
         this.physics.add.collider(up, ball, () => {
-            this.ballVelocity.y *= -1;
+            this.ballVelocity.y = Math.abs(this.ballVelocity.y);
         });
 
         this.physics.add.collider(down, ball, () => {
-            this.ballVelocity.y *= -1;
+            this.ballVelocity.y = -Math.abs(this.ballVelocity.y);
         });
 
         this.physics.add.collider(left, ball, () => {
@@ -135,7 +144,7 @@ class round1 extends Phaser.Scene {
             resetBall();
         });
 
-        const barWidth = 10;
+        const barWidth = 20;
         const barHeight = 100;
         const npcbar = this.add.graphics();
         npcbar.fillStyle(0xFF8080);
@@ -145,7 +154,7 @@ class round1 extends Phaser.Scene {
         npcbar.body.setOffset(240, y - barHeight / 2);
         this.updateNpcBar = () => {
             const dist = 5;
-            if (ball.x <= 640) {
+            if ((ball.x <= 640) && (ball.x >= 240)) {
                 if (npcbar.y < ball.y - dist - 360) {
                     npcbar.y = Phaser.Math.Clamp(npcbar.y + dist, -250, 250);
                 }
@@ -153,14 +162,22 @@ class round1 extends Phaser.Scene {
                     npcbar.y = Phaser.Math.Clamp(npcbar.y - dist, -250, 250);
                 }
             }
+            else {
+                if (npcbar.y < 0 - 2) {
+                    npcbar.y = Phaser.Math.Clamp(npcbar.y + 2, -250, 0);
+                } 
+                else if (npcbar.y > 0 + 2) {
+                    npcbar.y = Phaser.Math.Clamp(npcbar.y - 2, 0, 250);
+                }
+            }
         };
 
         const playerbar = this.add.graphics();
         playerbar.fillStyle(0x8080FF);
-        playerbar.fillRect(1030, y - barHeight / 2, barWidth, barHeight);
+        playerbar.fillRect(1020, y - barHeight / 2, barWidth, barHeight);
         this.physics.add.existing(playerbar);
         playerbar.body.setSize(barWidth, barHeight);
-        playerbar.body.setOffset(1030, y - barHeight / 2);
+        playerbar.body.setOffset(1020, y - barHeight / 2);
         this.input.keyboard.enabled = true;
         const keys = this.input.keyboard.createCursorKeys();
         this.updatePlayerBar = () => {
@@ -172,14 +189,12 @@ class round1 extends Phaser.Scene {
             }
         };
 
-        this.physics.add.collider(npcbar, ball, () => {
-            this.ballVelocity.x *= -1;
-            ball.x += ballRadius;
+        this.physics.add.overlap(npcbar, ball, () => {
+            this.ballVelocity.x = Math.abs(this.ballVelocity.x);
         });
 
-        this.physics.add.collider(playerbar, ball, () => {
-            this.ballVelocity.x *= -1;
-            ball.x -= ballRadius;
+        this.physics.add.overlap(playerbar, ball, () => {
+            this.ballVelocity.x = -Math.abs(this.ballVelocity.x);
         });
     }
 
@@ -190,14 +205,15 @@ class round1 extends Phaser.Scene {
     }
 }
 
-let config = {
+const config = {
     type: Phaser.WEBGL,
     width: 1280,
     height: 720,
     physics: {
         default: 'arcade'
     },
-    scene: [start, round1]
-}
+    scene: [start, round1],
+    fps: 60
+};
 
 let game = new Phaser.Game(config);
