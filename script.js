@@ -102,6 +102,7 @@ class round1 extends Phaser.Scene {
             ball.setPosition(x, y);
             ball.setVisible(false);
             setTimeout(() => {
+                ball.setPosition(x, y);
                 ball.setVisible(true);
                 this.ballVelocity = {
                     x: -5,
