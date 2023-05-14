@@ -106,7 +106,6 @@ class round1 extends Phaser.Scene {
                 this.ballVelocity = {
                     x: -5,
                     y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-4, -2) : Phaser.Math.FloatBetween(2, 4)
-                    // y: 0
                 };
             }, 1000);
         };
@@ -212,8 +211,7 @@ const config = {
     physics: {
         default: 'arcade'
     },
-    scene: [start, round1],
-    fps: 60
+    scene: [start, round1]
 };
 
 let game = new Phaser.Game(config);
