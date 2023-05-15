@@ -101,26 +101,32 @@ class round1 extends Phaser.Scene {
         const resetBall = () => {
             ball.setPosition(x, y);
             ball.setVisible(false);
+            this.ballVelocity = {
+                x: 0,
+                y: 0
+            };
             setTimeout(() => {
-                ball.setPosition(x, y);
                 ball.setVisible(true);
                 this.ballVelocity = {
                     x: -5,
                     y: (Math.random() < 0.5) ? Phaser.Math.FloatBetween(-4, -2) : Phaser.Math.FloatBetween(2, 4)
+                    // y: 0
                 };
             }, 1000);
         };
         resetBall()
 
         this.updateBall = () => {
-            ball.x += this.ballVelocity.x;
-            ball.y += this.ballVelocity.y;
+            if (ball.visible) {
+                ball.x += this.ballVelocity.x;
+                ball.y += this.ballVelocity.y;
 
-            if (this.ballVelocity.x > 0) {
-                this.ballVelocity.x += 0.002;
-            }
-            else {
-                this.ballVelocity.x -= 0.002;
+                if (this.ballVelocity.x > 0) {
+                    this.ballVelocity.x += 0.002;
+                }
+                else {
+                    this.ballVelocity.x -= 0.002;
+                }
             }
         };
 
@@ -128,7 +134,7 @@ class round1 extends Phaser.Scene {
             this.ballVelocity.y = Math.abs(this.ballVelocity.y);
         });
 
-        this.physics.add.collider(down, ball, () => {
+        this.physics.add.collider(down, ball, () => {4
             this.ballVelocity.y = -Math.abs(this.ballVelocity.y);
         });
 
@@ -136,15 +142,27 @@ class round1 extends Phaser.Scene {
             resetBall();
             playerScore++;
             playerScoreText.setText(`Score: ${playerScore}`);
+            if (playerScore >= 3) {
+                this.cameras.main.fadeOut(1000, 255, 255, 255);
+            }
+            this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+                this.scene.start('roundonescore', { playerScore, enemyScore });
+            });
         });
 
         this.physics.add.collider(right, ball, () => {
             resetBall();
             enemyScore++;
             enemyScoreText.setText(`Score: ${enemyScore}`);
+            if (enemyScore >= 3) {
+                this.cameras.main.fadeOut(1000, 255, 255, 255);
+            }
+            this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+                this.scene.start('roundonescore', { playerScore, enemyScore });
+            });
         });
 
-        const barWidth = 20;
+        const barWidth = 15;
         const barHeight = 100;
         const npcbar = this.add.graphics();
         npcbar.fillStyle(0xFF8080);
@@ -174,10 +192,10 @@ class round1 extends Phaser.Scene {
 
         const playerbar = this.add.graphics();
         playerbar.fillStyle(0x8080FF);
-        playerbar.fillRect(1020, y - barHeight / 2, barWidth, barHeight);
+        playerbar.fillRect(1025, y - barHeight / 2, barWidth, barHeight);
         this.physics.add.existing(playerbar);
         playerbar.body.setSize(barWidth, barHeight);
-        playerbar.body.setOffset(1020, y - barHeight / 2);
+        playerbar.body.setOffset(1025, y - barHeight / 2);
         this.input.keyboard.enabled = true;
         const keys = this.input.keyboard.createCursorKeys();
         this.updatePlayerBar = () => {
@@ -205,14 +223,38 @@ class round1 extends Phaser.Scene {
     }
 }
 
+class roundonescore extends Phaser.Scene {
+    constructor() {
+        super('roundonescore');
+    }
+
+    create() {
+        const x = this.cameras.main.centerX;
+        const y = this.cameras.main.centerY;
+        this.cameras.main.setBackgroundColor('#FFFFFF');
+        const { playerScore, enemyScore } = this.scene.settings.data;
+
+        const player = this.add.text(x, y, `Player Score: ${playerScore}`)
+            .setColor('#000000')
+            .setFontSize(128)
+            .setOrigin(0.5)
+        
+        const enemy = this.add.text(x, y + 50, `Enemy Score: ${enemyScore}`)
+            .setColor('#000000')
+            .setFontSize(128)
+            .setOrigin(0.5)
+    }
+}
+
 const config = {
     type: Phaser.WEBGL,
     width: 1280,
     height: 720,
+    fps: 240,
     physics: {
         default: 'arcade'
     },
-    scene: [start, round1]
+    scene: [start, round1, roundonescore]
 };
 
 let game = new Phaser.Game(config);
