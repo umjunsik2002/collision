@@ -783,9 +783,9 @@ const config = {
     type: Phaser.WEBGL,
     width: 1280,
     height: 720,
-    fps: 240,
     physics: {
-        default: 'arcade'
+        default: 'arcade',
+        fps: 600
     },
     scene: [start, level1, level1score, level2, level2score, level3, level3score]
 };
