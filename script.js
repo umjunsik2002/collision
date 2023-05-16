@@ -785,7 +785,7 @@ const config = {
     height: 720,
     physics: {
         default: 'arcade',
-        fps: 600
+        fps: 240
     },
     scene: [start, level1, level1score, level2, level2score, level3, level3score]
 };
